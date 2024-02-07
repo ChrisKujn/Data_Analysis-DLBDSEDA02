@@ -6,6 +6,7 @@ import pandas as pd
 import nltk
 import ntlk.corpus 
 from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 
@@ -23,15 +24,19 @@ df['Customer Complaint'] = df['Customer Complaint'].apply(word_tokenize)
 
 # eStopWords mit den englischen Stoppwörtern füllen, da der vorhandene Datensatz auf englisch ist 
 eStopWords = set(stopwords.words('english'))
+eStopWords.add('comcast')
 
 # Bedeutungslose Wörter, auch Stoppwörter genannt, entfernen.
 df['Customer Complaint'] = df['Customer Complaint'].apply(lambda x: [word for word in x if word not in eStopWords])
 # print df['Customer Complaint']
 
 # Die restlichen Wörter in die Grundform bringen (Stemming oder Lemmatisierung) 
-# Dafür wird die Python-Bibliothek NLTK (Natural Language Toolkit) speziell das nltk.corpus Paket verwendet.
+lemmatizer = WordNetLemmatizer()
+df['Customer Complaint'] = df['Customer Complaint'].apply(lambda x: [lemmatizer.lemmatize(word) for word in x])
 
-
+# Umwandlung in nummerische Vektoren
+vectorizer = TfidfVectorizer()
+X = vectorizer.fit_transform(df['Customer Complaint'].apply(' '.join))
 
 
 
@@ -39,7 +44,8 @@ df['Customer Complaint'] = df['Customer Complaint'].apply(lambda x: [word for wo
 
 
 # TF-IDF Ansatz. Beide Ansätze können in Python mithilfe des scikit-learn-Pakets umgesetzt dafür wird pandas als pd importiert.
-
+tfidf = TfidfVectorizer()
+X_tfidf = tfidf.fit_transform(df['Customer Complaint'].apply(' '.join))
 
 
 # Coherence Score (Bestimmung der Anzahl von Themen)
