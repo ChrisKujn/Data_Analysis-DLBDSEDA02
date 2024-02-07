@@ -2,7 +2,8 @@ nltk.download('stopwords')
 
 import re 
 import pandas as pd
-
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 import nltk
 import ntlk.corpus 
 from nltk.corpus import stopwords
