@@ -14,23 +14,24 @@ from gensim.corpora import Dictionary
 
 
 # Inhalt der CSV 'Comcast.csv' lesen
-df = pd.read.csv ('Comcast.csv')
-
+df = pd.read_csv ('Comcast.csv')
 # Inhalt der Spalte 'Customer Complaint in Kleinbuchstaben umwandeln 
-df['Customer Complaint'] = df['Customer Complaint'].str.lower
-# print df['Customer Complaint']
+df['Customer Complaint'] = df['Customer Complaint'].str.lower()
+# print (df['Customer Complaint'].head(5))
+
 
 # Wörter mithilfe der Funktion word-tokenize aus der Unterbibiliothek nltk.tokenize tokenisiert.
 df['Customer Complaint'] = df['Customer Complaint'].apply(word_tokenize)
+# print (df['Customer Complaint'].head(5))
 
 # eStopWords mit den englischen Stoppwörtern füllen
 eStopWords = set(stopwords.words('english'))
 #Comcast als zusätzliches Stopwort
 eStopWords.add('comcast')
-
 # Stoppwörter entfernen
 df['Customer Complaint'] = df['Customer Complaint'].apply(lambda x: [word for word in x if word not in eStopWords])
-# print df['Customer Complaint']
+# print (df['Customer Complaint'].head(5))
+
 
 # Wörter in die Grundform bringen (Stemming, Lemmatisierung) 
 lemmatizer = WordNetLemmatizer()
