@@ -40,9 +40,9 @@ df['Customer Complaint'] = df['Customer Complaint'].apply(lambda x: [lemmatizer.
 # print (df['Customer Complaint'].head(5))
 
 
-# Umwandlung in nummerische Vektoren
-vectorizer = TfidfVectorizer()
-X = vectorizer.fit_transform(df['Customer Complaint'].apply(' '.join))
+# Bag-of-Words-Vektorisierers
+bow_vectorizer = CountVectorizer()
+X_bow = bow_vectorizer.fit_transform(df['Customer Complaint'].apply(' '.join))
 
 
 # TF-IDF Ansatz. Beide Ansätze können in Python mithilfe des scikit-learn-Pakets umgesetzt dafür wird pandas als pd importiert.
