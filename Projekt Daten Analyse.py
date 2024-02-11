@@ -32,6 +32,7 @@ eStopWords = set(stopwords.words('english'))
 eStopWords.add('comcast')
 # Stoppwörter entfernen
 df['Customer Complaint'] = df['Customer Complaint'].apply(lambda x: [word for word in x if word not in eStopWords])
+# print (eStopWords)
 
 
 # Wörter in die Grundform bringen (Stemming, Lemmatisierung) 
@@ -40,30 +41,34 @@ df['Customer Complaint'] = df['Customer Complaint'].apply(lambda x: [lemmatizer.
 # print (df['Customer Complaint'].head(5))
 
 
-# Bag-of-Words
+# Bag-of-Words-Vektorisierers
 bow_vectorizer = CountVectorizer()
 X_bow = bow_vectorizer.fit_transform(df['Customer Complaint'].apply(' '.join))
+# print(X_bow[:5])
 
 
 # TF-IDF Ansatz
 tfidf = TfidfVectorizer()
 X_tfidf = tfidf.fit_transform(df['Customer Complaint'].apply(' '.join))
+# print(X_tfidf[:5])
 
 
 # LSA
-lsa = TruncatedSVD(n_components=4, algorithm='randomized', n_iter=15, random_state=42)
-lsa_output = lsa.fit_transform(X)
+lsa = TruncatedSVD(n_components=3, algorithm='randomized', n_iter=15, random_state=42)
+lsa_output = lsa.fit_transform(X_tfidf)
 # Neue Spalte für jede Komponente im Data frame
 for i in range(lsa_output.shape[1]):
     df[f'LSA Topic {i}'] = lsa_output[:, i]
+# print (lsa_output)
     
 
 # LDA
 lda = LatentDirichletAllocation(n_components=3, doc_topic_prior=0.9, topic_word_prior=0.9)
-lda_output = lda.fit_transform(X)
+lda_output = lda.fit_transform(X_tfidf)
 # Neue Spalte für jede Komponente im Data frame
 for i in range(lda_output.shape[1]):
     df[f'LDA Topic {i}'] = lda_output[:, i]
+# print (lda_output)
 
 
 # Verzeichnis für die Themen erstellen
