@@ -40,12 +40,12 @@ df['Customer Complaint'] = df['Customer Complaint'].apply(lambda x: [lemmatizer.
 # print (df['Customer Complaint'].head(5))
 
 
-# Bag-of-Words-Vektorisierers
+# Bag-of-Words
 bow_vectorizer = CountVectorizer()
 X_bow = bow_vectorizer.fit_transform(df['Customer Complaint'].apply(' '.join))
 
 
-# TF-IDF Ansatz. Beide Ansätze können in Python mithilfe des scikit-learn-Pakets umgesetzt dafür wird pandas als pd importiert.
+# TF-IDF Ansatz
 tfidf = TfidfVectorizer()
 X_tfidf = tfidf.fit_transform(df['Customer Complaint'].apply(' '.join))
 
@@ -86,7 +86,7 @@ for topic_idx, topic in enumerate(lda.components_):
 # print (topics)
 
 
-# Coherence Score (Bestimmung der Anzahl von Themen)
+# Coherence Score
 coherence_model_lda = CoherenceModel(topics=topics, texts=df['Customer Complaint'], dictionary=dictionary, coherence='c_v')
 coherence_lda = coherence_model_lda.get_coherence()
 
