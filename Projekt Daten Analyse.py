@@ -23,19 +23,20 @@ df['Customer Complaint'] = df['Customer Complaint'].str.lower()
 
 # Wörter mithilfe der Funktion word-tokenize aus der Unterbibiliothek nltk.tokenize tokenisiert.
 df['Customer Complaint'] = df['Customer Complaint'].apply(word_tokenize)
-# print (df['Customer Complaint'].head(5))
+#print (df['Customer Complaint'].head(5))
 
 
 # eStopWords mit den englischen Stoppwörtern füllen
 eStopWords = set(stopwords.words('english'))
-#Comcast als zusätzliches Stopwort
+#Comcast als zusätzliches Stoppwort
 eStopWords.add('comcast')
 # Stoppwörter entfernen
 df['Customer Complaint'] = df['Customer Complaint'].apply(lambda x: [word for word in x if word not in eStopWords])
-# print (eStopWords)
+# print ('Übersicht Stoppwörter: \n', eStopWords)
+# print ('\nÜbersicht nach entfernen der Wörter in df:\n',(df['Customer Complaint'].head(5)))
 
 
-# Wörter in die Grundform bringen (Stemming, Lemmatisierung) 
+# Wörter in die Grundform bringen
 lemmatizer = WordNetLemmatizer()
 df['Customer Complaint'] = df['Customer Complaint'].apply(lambda x: [lemmatizer.lemmatize(word) for word in x])
 # print (df['Customer Complaint'].head(5))
@@ -48,6 +49,9 @@ X_bow = bow_vectorizer.fit_transform(df['Customer Complaint'].apply(' '.join))
 
 
 # TF-IDF Ansatz
+vectorizer = TfidfVectorizer()
+X = vectorizer.fit_transform(df['Customer Complaint'].apply(' '.join))
+
 tfidf = TfidfVectorizer()
 X_tfidf = tfidf.fit_transform(df['Customer Complaint'].apply(' '.join))
 # print(X_tfidf[:5])
@@ -55,7 +59,8 @@ X_tfidf = tfidf.fit_transform(df['Customer Complaint'].apply(' '.join))
 
 # LSA
 lsa = TruncatedSVD(n_components=3, algorithm='randomized', n_iter=15, random_state=42)
-lsa_output = lsa.fit_transform(X_tfidf)
+lsa_output = lsa.fit_transform(X)
+
 # Neue Spalte für jede Komponente im Data frame
 for i in range(lsa_output.shape[1]):
     df[f'LSA Topic {i}'] = lsa_output[:, i]
@@ -64,7 +69,7 @@ for i in range(lsa_output.shape[1]):
 
 # LDA
 lda = LatentDirichletAllocation(n_components=3, doc_topic_prior=0.9, topic_word_prior=0.9)
-lda_output = lda.fit_transform(X_tfidf)
+lda_output = lda.fit_transform(X)
 # Neue Spalte für jede Komponente im Data frame
 for i in range(lda_output.shape[1]):
     df[f'LDA Topic {i}'] = lda_output[:, i]
@@ -73,14 +78,13 @@ for i in range(lda_output.shape[1]):
 
 # Verzeichnis für die Themen erstellen
 dictionary = Dictionary(df['Customer Complaint'])
-
-
 # Umwandlung in eine vektorisierte Form durch Berechnung des "Frequency counts"
 corpus = [dictionary.doc2bow(doc) for doc in df['Customer Complaint']]
+print (corpus)
 
 
-# Themen extrahieren
-n_top_words = 3 
+# Themen aus LDA extrahieren
+n_top_words = 2 
 topics = []
 feature_names = vectorizer.get_feature_names_out()
 
@@ -91,9 +95,10 @@ for topic_idx, topic in enumerate(lda.components_):
 # print (topics)
 
 
-# Coherence Score
+# Coherence Score LDA
 coherence_model_lda = CoherenceModel(topics=topics, texts=df['Customer Complaint'], dictionary=dictionary, coherence='c_v')
 coherence_lda = coherence_model_lda.get_coherence()
+# print ('Coherence Score LDA:', coherence_lda)
 
 
 #LDA Themen ausgeben
@@ -105,8 +110,7 @@ for i, topic in enumerate(topics):
 topics = [[feature_names[i] for i in topic.argsort()[:-n_top_words - 1:-1]] for topic in lsa.components_]
 coherence_model_lsa = CoherenceModel(topics=topics, texts=df['Customer Complaint'], dictionary=dictionary, coherence='c_v')
 coherence_lsa = coherence_model_lsa.get_coherence()
-print('Coherence Score: ', coherence_lsa)
-# print(topics)
+# print('Coherence Score LSA: ', coherence_lsa)
 
 
 #LSA Themen ausgeben
